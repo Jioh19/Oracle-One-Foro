@@ -1,10 +1,12 @@
-package com.alura.foro.model;
+package com.alura.foro.domain.topico;
 
 import com.alura.foro.domain.usuario.Usuario;
+import com.alura.foro.domain.curso.Curso;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Entity
 @Table(name = "topico")
@@ -19,6 +21,7 @@ public class Topico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long topicoId;
     private String titulo;
+    private String mensaje;
     private LocalDate fechaCreacion;
     private String status;
 
@@ -30,4 +33,13 @@ public class Topico {
     @ManyToOne
     @JoinColumn(name = "usuarioId")
     private Usuario autor;
+
+    public Topico(DtoCrearTopico datos, Usuario autor, Curso curso) {
+        this.titulo = datos.titulo();
+        this.mensaje = datos.mensaje();
+        this.fechaCreacion = LocalDate.now();
+        this.status = "pendiente";
+        this.autor = autor;
+        this.curso = curso;
+    }
 }
