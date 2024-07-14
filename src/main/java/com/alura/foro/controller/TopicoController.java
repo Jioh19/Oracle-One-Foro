@@ -1,6 +1,8 @@
 package com.alura.foro.controller;
 
+import com.alura.foro.domain.topico.DtoActualizarTopico;
 import com.alura.foro.domain.topico.DtoCrearTopico;
+import com.alura.foro.domain.topico.DtoDetallesTopico;
 import com.alura.foro.domain.topico.Topico;
 import com.alura.foro.service.CursoService;
 import com.alura.foro.service.TopicoService;
@@ -33,7 +35,7 @@ public class TopicoController {
      }
 
      @GetMapping("/{id}")
-     public ResponseEntity<Topico> findById(Long id){
+     public ResponseEntity<Topico> findById(@PathVariable("id") Long id){
          var result = topicoService.findById(id);
          if(result.isEmpty()){
              return ResponseEntity.notFound().build();
@@ -44,7 +46,7 @@ public class TopicoController {
 
     @PostMapping("/")
     @Transactional
-    public ResponseEntity save(@RequestBody @Valid DtoCrearTopico datos, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<Topico> save(@RequestBody @Valid DtoCrearTopico datos, UriComponentsBuilder uriBuilder) {
         var autor = usuarioService.findById(datos.autorId());
         if(autor.isEmpty()){
             return ResponseEntity.notFound().build();
@@ -55,5 +57,29 @@ public class TopicoController {
         }
         var topico = new Topico(datos, autor.get(), curso.get());
         return ResponseEntity.ok(topicoService.save(topico));
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Topico> update(@PathVariable("id") Long id, @RequestBody @Valid DtoActualizarTopico datos){
+        var topico = topicoService.findById(id);
+        if(topico.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        topico.get().actualizarTopico(datos);
+
+
+        return ResponseEntity.ok(topico.get());
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Topico> delete(@PathVariable("id") Long id) {
+        var topico = topicoService.findById(id);
+        if(topico.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        topico.get().eliminarTopico();
+        return ResponseEntity.ok(topico.get());
     }
 }
